@@ -64,6 +64,9 @@ jobs:
           # DRY_RUN: true
   
   discord_notification:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
 
