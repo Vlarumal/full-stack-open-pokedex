@@ -60,9 +60,14 @@ jobs:
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
 
+      - name: Debug deploy conclusion and outcome
+        run: |
+          echo "Deploy outcome: ${{ steps.deploy.outcome }}"
+          echo "Deploy conclusion: ${{ steps.deploy.conclusion }}"
+
       - name: Deployment success notification
         uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
-        if: steps.deploy.conclusion != 'skipped' && steps.deploy.conclusion == 'success' && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
+        if: success() && ${{ steps.deploy.outcome == 'success' && steps.deploy.conclusion != 'skipped' && steps.deploy.conclusion == 'success' && env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
           description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by ${{ steps.get_author.outputs.author }} succeeded!
