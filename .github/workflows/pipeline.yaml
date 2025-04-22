@@ -18,6 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Get last commit author
+        id: get_author
+        run: |
+          AUTHOR=$(git log -1 --pretty=format:'%an')
+          echo "author=$AUTHOR" >> $GITHUB_OUTPUT
+
       - name: Try to fail
         run: exit 1
 
@@ -56,7 +62,7 @@ jobs:
         if: success() && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
-          description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by $(git log -1 --pretty=format:'%an')
+          description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by {{ steps.get_author.outputs.author }}
           details: Deploy succeeded!
           text: A new version of Pokedex deployed
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
@@ -66,7 +72,7 @@ jobs:
         if: failure()
         with:
           severity: error
-          description: commit ${{ github.sha }} by $(git log -1 --pretty=format:'%an') broke the build
+          description: commit https://github.com/${{ github.repository }}/commit/${{ github.sha }} by ${{ steps.get_author.outputs.author }} broke the build
           # details: Build failed!
           text: Build failed!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
