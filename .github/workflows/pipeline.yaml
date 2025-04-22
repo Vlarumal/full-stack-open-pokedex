@@ -51,28 +51,6 @@ jobs:
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
 
-  tag_release:
-    needs: [simple_deployment_pipeline]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Bump version and push tag
-        if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
-        uses: anothrNick/github-tag-action@1.71.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
-          # DRY_RUN: true
-
-  discord_notification:
-    needs: [simple_deployment_pipeline]
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
       - name: A new version of Pokedex deployed
         uses: rjstone/discord-webhook-notify@v1.0.4
         if: success() && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
@@ -100,3 +78,18 @@ jobs:
           severity: warn
           details: Deployment Cancelled!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          # DRY_RUN: true
