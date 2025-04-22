@@ -24,8 +24,8 @@ jobs:
           AUTHOR=$(git log -1 --pretty=format:'%an')
           echo "author=$AUTHOR" >> $GITHUB_OUTPUT
 
-      - name: Try to fail
-        run: exit 1
+      # - name: Try to fail
+      #   run: exit 1
 
       - uses: actions/setup-node@v4
         with:
@@ -58,7 +58,7 @@ jobs:
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
 
       - name: A new version of Pokedex deployed
-        uses: rjstone/discord-webhook-notify@v1.0.4
+        uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
         if: success() && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
@@ -68,7 +68,7 @@ jobs:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Build failed
-        uses: rjstone/discord-webhook-notify@v1.0.4
+        uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
         if: failure()
         with:
           severity: error
@@ -78,7 +78,7 @@ jobs:
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
       - name: Cancelled
-        uses: rjstone/discord-webhook-notify@v1.0.4
+        uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
         if: cancelled()
         with:
           severity: warn
@@ -94,7 +94,7 @@ jobs:
 
       - name: Bump version and push tag
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
-        uses: anothrNick/github-tag-action@1.71.0
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
