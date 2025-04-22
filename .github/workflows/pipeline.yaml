@@ -8,6 +8,10 @@ on:
     branches: [main]
     types: [opened, synchronize]
 
+env:
+  CONDITION_SKIP: ${{ contains(join(github.event.commits.*.message, ' '), '#skip') }}
+  CONDITION_PUSH: ${{ github.event_name == 'push' && }}
+
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-latest
@@ -41,7 +45,7 @@ jobs:
           retention-days: 30
 
       - name: Trigger deployment
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.CONDITION_PUSH == true && env.CONDITION_SKIP == false }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
   
   tag_release:
@@ -51,7 +55,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Bump version and push tag
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ env.CONDITION_PUSH == true && env.CONDITION_SKIP == false }}
         uses: anothrNick/github-tag-action@1.71.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
