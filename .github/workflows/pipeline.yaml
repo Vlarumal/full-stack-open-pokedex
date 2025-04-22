@@ -18,6 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Try to fail
+        run: exit 1
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -36,7 +39,7 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run test:e2e
-        
+
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -47,14 +50,14 @@ jobs:
       - name: Trigger deployment
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
-  
+
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-    
+
       - name: Bump version and push tag
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         uses: anothrNick/github-tag-action@1.71.0
@@ -62,30 +65,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           # DRY_RUN: true
-  
+
   discord_notification:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
 
       - name: A new version of Pokedex deployed
         uses: rjstone/discord-webhook-notify@v1.0.4
-        if: success()
+        if: success() && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
+          description: to https://full-stack-open-pokedex-ya6c.onrender.com/
           details: Deploy succeeded!
+          text: A new version of Pokedex deployed
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-      
+
       - name: Build failed
         uses: rjstone/discord-webhook-notify@v1.0.4
         if: failure()
         with:
           severity: error
-          details: Build failed!
+          description: last commit broke the build
+          # details: Build failed!
+          text: Build failed!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-          
+
       - name: Cancelled
         uses: rjstone/discord-webhook-notify@v1
         if: cancelled()
@@ -93,4 +100,3 @@ jobs:
           severity: warn
           details: Deployment Cancelled!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
-
