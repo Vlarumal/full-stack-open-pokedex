@@ -51,7 +51,7 @@ jobs:
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
-    if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
+    if: ${{ github.env.CONDITION_PUSH == 'true' && github.env.CONDITION_SKIP == 'false' }}
     steps:
       - uses: actions/checkout@v4
       
