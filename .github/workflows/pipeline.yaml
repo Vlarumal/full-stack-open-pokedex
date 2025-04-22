@@ -15,6 +15,8 @@ env:
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-latest
+    outputs:
+      author: ${{ steps.get_author.outputs.author }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,20 +56,21 @@ jobs:
           retention-days: 30
 
       - name: Trigger deployment
+        id: deploy
         if: ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
 
-      - name: A new version of Pokedex deployed
+      - name: Deployment success notification
         uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
-        if: success() && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
+        if: steps.deploy.outcome == 'success' && ${{ env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
-          description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by {{ steps.get_author.outputs.author }}
-          details: Deploy succeeded!
+          description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by ${{ steps.get_author.outputs.author }} succeeded!
+          details: Deployment was successful.
           text: A new version of Pokedex deployed
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
-      - name: Build failed
+      - name: Build failed - notification
         uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
         if: failure()
         with:
@@ -77,7 +80,7 @@ jobs:
           text: Build failed!
           webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
 
-      - name: Cancelled
+      - name: Cancelled - notification
         uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
         if: cancelled()
         with:
@@ -99,3 +102,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           # DRY_RUN: true
+
+  discord_success_notification:
+    needs: [simple_deployment_pipeline, tag_release]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      
