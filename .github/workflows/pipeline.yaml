@@ -62,3 +62,32 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           # DRY_RUN: true
+  
+  discord_notification:
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: A new version of Pokedex deployed
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: success()
+        with:
+          severity: info
+          details: Deploy succeeded!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+      
+      - name: Build failed
+        uses: rjstone/discord-webhook-notify@v1.0.4
+        if: failure()
+        with:
+          severity: error
+          details: Build failed!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+          
+      - name: Cancelled
+        uses: rjstone/discord-webhook-notify@v1
+        if: cancelled()
+        with:
+          severity: warn
+          details: Deployment Cancelled!
+          webhookUrl: ${{ secrets.DISCORD_WEBHOOK }}
+
