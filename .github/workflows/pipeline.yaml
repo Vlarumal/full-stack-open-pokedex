@@ -10,7 +10,7 @@ on:
 
 jobs:
   simple_deployment_pipeline:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -43,3 +43,15 @@ jobs:
       - name: Trigger deployment
         if: ${{ github.event_name == 'push' }}
         run: curl https://api.render.com/deploy/srv-${{ secrets.MY_RENDER_SERVICE_ID }}?key=${{ secrets.MY_RENDER_API_KEY }}
+  
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump version and push tag
+        if: ${{ github.event_name == 'push' }}
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          DRY_RUN: true
