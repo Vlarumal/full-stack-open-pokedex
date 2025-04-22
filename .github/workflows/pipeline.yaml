@@ -67,7 +67,7 @@ jobs:
 
       - name: Deployment success notification
         uses: rjstone/discord-webhook-notify@89b0bf43c2c8514f70d0dcba4a706b904e8a3112
-        if: success() && ${{ steps.deploy.outcome == 'success' && steps.deploy.conclusion != 'skipped' && steps.deploy.conclusion == 'success' && env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
+        if: ${{ steps.deploy.outcome != 'skipped' && steps.deploy.outcome == 'success' && steps.deploy.conclusion != 'skipped' && steps.deploy.conclusion == 'success' && env.CONDITION_PUSH == 'true' && env.CONDITION_SKIP == 'false' }}
         with:
           severity: info
           description: to https://full-stack-open-pokedex-ya6c.onrender.com/ by ${{ steps.get_author.outputs.author }} succeeded!
