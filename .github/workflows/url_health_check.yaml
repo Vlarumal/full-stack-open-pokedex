@@ -2,8 +2,8 @@ name: URL health check
 
 on:
   schedule:
-    - cron: '44 4 * * *'
-  workflow_dispatch:
+    - cron: '03 11 * * *'
+  # workflow_dispatch:
 
 env:
   TZ: Europe/Vilnius
@@ -17,7 +17,7 @@ jobs:
         uses: jtalk/url-health-check-action@b716ccb6645355dd9fcce8002ce460e5474f7f00
         with:
           # Check the following URLs one by one sequentially
-          url: https://render.com/|https://full-stack-open-pokedex-ya6c.onrender.com/healtherror
+          url: https://render.com/|https://full-stack-open-pokedex-ya6c.onrender.com/health
           # Follow redirects, or just report success on 3xx status codes
           follow-redirect: false # Optional, defaults to "false"
           # Fail this action after this many failed attempts
