@@ -3,7 +3,7 @@ name: URL health check
 on:
   schedule:
     - cron: '44 4 * * *'
-  workflow_dispatch
+  workflow_dispatch:
 
 env:
   TZ: Europe/Vilnius
