@@ -3,7 +3,7 @@ name: URL health check
 on:
   workflow_dispatch:
   schedule:
-    - cron: '56 9 * * *'
+    - cron: '*/5 * * * *'
   
 
 env:
