@@ -10,6 +10,7 @@ app.get('/version', (req, res) => {
   res.send('health check') // change this string to ensure a new version deployed
 })
 
+
 app.get('/health', (req, res) => {
   res.send('ok')
 })
